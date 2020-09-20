@@ -348,7 +348,7 @@ int FfmpegCamera::FfPreferredArgumentExists(int preferred_type, char **string_va
     case FF_PREF_PARAM_NONE:
       return 0;
       break;
-    case FF_PREF_PARAM_H264_DECODER_BY_NAME:
+    case FF_PREF_PARAM_H264_DECODER_NAME:
       Debug(2, "Trying to find preferred value for: H264 decoder");
 
       Debug(3, "H264 decoder value from configuration files is: %s", staticConfig.FF_PREF_H264_DECODER_NAME);
@@ -526,7 +526,7 @@ int FfmpegCamera::OpenFfmpeg() {
 // ***** NEW STUFF STARTS HERE *****
   char *preferred_value;
   if ( mVideoCodecContext->codec_id == AV_CODEC_ID_H264 ) {
-    if ( FfPreferredArgumentExists(FF_PREF_PARAM_H264_DECODER_BY_NAME, &preferred_value) ) {
+    if ( FfPreferredArgumentExists(FF_PREF_PARAM_H264_DECODER_NAME, &preferred_value) ) {
       if ( (mVideoCodec = avcodec_find_decoder_by_name(preferred_value)) == NULL ) {
         Debug(1, "Failed to find custom-preferred H264 decoder (%s)", preferred_value);
       } else {
