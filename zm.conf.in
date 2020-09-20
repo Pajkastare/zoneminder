@@ -65,3 +65,6 @@ ZM_DB_SSL_CLIENT_CERT=@ZM_DB_SSL_CLIENT_CERT@
 # in the Servers tab under Options
 ZM_SERVER_HOST=
 
+# ZoneMinder FFmpeg monitor options: Preferred H264 decoder name (will use default decoder if not found)
+ZM_FF_PREF_H264_DECODER_NAME=
+

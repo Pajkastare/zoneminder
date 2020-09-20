@@ -199,6 +199,12 @@ void process_configfile(char* configFile) {
       staticConfig.PATH_SWAP = std::string(val_ptr);
     else if ( strcasecmp(name_ptr, "ZM_PATH_ARP") == 0 )
       staticConfig.PATH_ARP = std::string(val_ptr);
+        // ***** NEW STUFF STARTS HERE *****
+    else if ( strcasecmp(name_ptr, "ZM_FF_PREF_H264_DECODER_NAME") == 0 )
+      staticConfig.FF_PREF_H264_DECODER_NAME = std::string(val_ptr);
+
+
+        // ***** NEW STUFF ENDS HERE *****
     else {
       // We ignore this now as there may be more parameters than the
       // c/c++ binaries are bothered about
