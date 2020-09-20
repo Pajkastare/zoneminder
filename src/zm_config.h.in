@@ -84,6 +84,7 @@ struct StaticConfig {
   std::string PATH_LOGS;
   std::string PATH_SWAP;
   std::string PATH_ARP;
+  std::string FF_PREF_H264_DECODER_NAME;
   char    capture_file_format[PATH_MAX];
   char    analyse_file_format[PATH_MAX];
   char    general_file_format[PATH_MAX];
