@@ -337,6 +337,50 @@ int FfmpegCamera::PostCapture() {
   return 0;
 }
 
+
+// ***** NEW STUFF STARTS HERE *****
+int FfmpegCamera::FfPreferredArgumentExists(int preferred_type, char **string_value) {
+  static char ff_pref_buffer[FF_PREF_PARAM_BUFLENGTH + 1] = "";
+  strncpy(ff_pref_buffer, "<UNINITIALIZED>", FF_PREF_PARAM_BUFLENGTH);
+  *string_value = ff_pref_buffer;
+  switch (preferred_type) {
+    // The break after return isn't needed, but doesn't hurt either.
+    case FF_PREF_PARAM_NONE:
+      return 0;
+      break;
+    case FF_PREF_PARAM_H264_DECODER_BY_NAME:
+      Debug(2, "Trying to find preferred value for: H264 decoder");
+
+      Debug(3, "H264 decoder value from configuration files is: %s", staticConfig.FF_PREF_H264_DECODER_NAME);
+      strncpy(ff_pref_buffer, staticConfig.FF_PREF_H264_DECODER_NAME.c_str(), FF_PREF_PARAM_BUFLENGTH);
+      // Hard-coded value for debugging:
+      //      strncpy(ff_pref_buffer, "h264", FF_PREF_PARAM_BUFLENGTH);
+      if (ff_pref_buffer[0]) {
+        Debug(2, "Returning preferred H264 decoder value: %s", ff_pref_buffer);
+        return 1;
+      } else {
+        Debug(2, "No preferred H264 decoder value was defined");
+        return 0;
+      }
+      break;
+    case FF_PREF_PARAM_TBD1:
+      return 0;	// Not implemented
+      break;
+    case FF_PREF_PARAM_TBD2:
+      return 0;	// Not implemented
+      break;
+    default:
+      Error("FfPreferredArgumentExists() called with invalid argument");
+      return 0;
+      break;
+  }
+  Error("FfPreferredArgumentExists() is very broken, should never get here");
+  return 0;
+}
+// ***** NEW STUFF ENDS HERE *****
+
+
+
 int FfmpegCamera::OpenFfmpeg() {
   int ret;
 
@@ -467,6 +511,9 @@ int FfmpegCamera::OpenFfmpeg() {
   mVideoCodecContext->flags2 |= CODEC_FLAG2_FAST | CODEC_FLAG_LOW_DELAY;
 #endif
 
+  // Note: This is kept for backward-compatibility reasons, but using
+  // the ZM_FF_PREF_H264_DECODER_NAME configuration parameter is more flexible.
+  // FIXME: Set ZM_FF_PREF_H264_DECODER_NAME to "h264_mmal" in /etc/zm.conf and remove this block.
   if ( mVideoCodecContext->codec_id == AV_CODEC_ID_H264 ) {
     if ( (mVideoCodec = avcodec_find_decoder_by_name("h264_mmal")) == NULL ) {
       Debug(1, "Failed to find decoder (h264_mmal)");
@@ -474,6 +521,23 @@ int FfmpegCamera::OpenFfmpeg() {
       Debug(1, "Success finding decoder (h264_mmal)");
     }
   }
+
+
+// ***** NEW STUFF STARTS HERE *****
+  char *preferred_value;
+  if ( mVideoCodecContext->codec_id == AV_CODEC_ID_H264 ) {
+    if ( FfPreferredArgumentExists(FF_PREF_PARAM_H264_DECODER_BY_NAME, &preferred_value) ) {
+      if ( (mVideoCodec = avcodec_find_decoder_by_name(preferred_value)) == NULL ) {
+        Debug(1, "Failed to find custom-preferred H264 decoder (%s)", preferred_value);
+      } else {
+        Debug(1, "Success finding custom-preferred H264 decoder (%s)", preferred_value);
+      }
+    } else {
+      Debug(1, "No custom-preferred H264 decoder was defined, using defaults");
+    }
+  }
+// ***** NEW STUFF ENDS HERE *****
+
 
   if ( !mVideoCodec ) {
     mVideoCodec = avcodec_find_decoder(mVideoCodecContext->codec_id);

@@ -27,6 +27,19 @@
 #include "zm_videostore.h"
 #include "zm_packetqueue.h"
 
+
+// ***** NEW STUFF STARTS HERE *****
+#define FF_PREF_PARAM_NONE              (-1)
+#define FF_PREF_PARAM_H264_DECODER_NAME (1 << 3)
+#define FF_PREF_PARAM_TBD1              (1 << 4)
+#define FF_PREF_PARAM_TBD2              (1 << 5)
+#define FF_PREF_PARAM_BUFLENGTH         200
+// ***** NEW STUFF ENDS HERE *****
+
+
+
+
+
 #if HAVE_LIBAVUTIL_HWCONTEXT_H
 typedef struct DecodeContext {
       AVBufferRef *hw_device_ref;
@@ -49,6 +62,8 @@ class FfmpegCamera : public Camera {
     int alignment;      /* ffmpeg wants line sizes to be 32bit aligned.  Especially 4.3+ */
 
 #if HAVE_LIBAVFORMAT
+    int FfPreferredArgumentExists(int preferred_type, char **string_value);
+
     AVFormatContext     *mFormatContext;
     int                 mVideoStreamId;
     int                 mAudioStreamId;
